@@ -1,0 +1,96 @@
+(define (domain nosliw)
+  (:requirements :strips :typing)
+  (:types item agent location - object
+          town mountain cave - location
+          hero sorceress wizard dragon - agent
+          diamond pen sword - item)
+  (:predicates (at ?object - object ?location - location) 
+               (path-from-to ?location1 - location ?location2 - location)
+               (different ?item1 - item ?item2 - item)
+               (possesses ?agent - agent ?item - item)
+               (strong ?hero - hero)
+               (asleep ?dragon - dragon)
+               (safe ?town - town)
+               (dead ?dragon - dragon)
+               )
+
+  (:action move
+      :parameters (?hero - hero ?location1 ?location2 - location)
+      :precondition (and (at ?hero ?location1)
+                         (path-from-to ?location1 ?location2)
+                         )
+      :effect (and (at ?hero ?location2)
+                   (not (at ?hero ?location1))
+                   ))
+
+  (:action trade
+     :parameters (?hero - hero ?agent - agent ?location - location ?item1 ?item2 - item)
+     :precondition (and (at ?hero ?location)
+                        (at ?agent ?location)
+                        (possesses ?hero ?item1)
+                        (possesses ?agent ?item2)
+                        )
+     :effect (and (at ?hero ?location)
+                  (at ?agent ?location)
+                  (possesses ?hero ?item2)
+                  (possesses ?agent ?item1)
+                  ))
+
+  (:action pickup
+     :parameters (?hero - hero ?location - location ?item - item)
+     :precondition (and (at ?hero ?location)
+                        (at ?item ?location)
+                        )
+     :effect (and (at ?hero ?location)
+                  (not (at ?item ?location))
+                  (possesses ?hero ?item)
+                  ))
+
+  (:action drop
+     :parameters (?hero - hero ?location - location ?item - item)
+     :precondition (and (at ?hero ?location)                        
+                        (possesses ?hero ?item)
+                        )
+     :effect (and (at ?hero ?location)
+                  (not (possesses ?hero ?item))
+                  (at ?item ?location)
+                  ))
+
+  (:action magic
+     :parameters (?hero - hero ?agent - agent ?location - location ?diamond1 ?diamond2 ?diamond3 - diamond)
+     :precondition (and (at ?hero ?location)
+                        (at ?agent ?location)
+                        (possesses ?hero ?diamond1)
+                        (possesses ?hero ?diamond2)
+                        (possesses ?hero ?diamond3)
+                        (different ?diamond1 ?diamond2)
+                        (different ?diamond2 ?diamond3)
+                        (different ?diamond1 ?diamond3)
+                        )
+     :effect (and (at ?hero ?location)
+                  (at ?agent ?location)
+                  (strong ?hero)
+                  (not (possesses ?hero ?diamond1))
+                  (not (possesses ?hero ?diamond2))
+                  (not (possesses ?hero ?diamond3))
+                  ))
+
+  (:action song
+     :parameters (?hero - hero ?town - town ?quill - pen ?dragon - dragon)
+     :precondition (and (possesses ?hero ?quill)
+                        )
+     :effect (and (asleep ?dragon)
+                  (safe ?town)
+                  ))
+
+  (:action slaying
+     :parameters (?hero - hero ?dragon - dragon ?cave - cave ?sword - sword ?town - town)
+     :precondition (and (at ?hero ?cave)
+                        (strong ?hero)
+                        (possesses ?hero ?sword)
+                        )
+     :effect (and (dead ?dragon)
+                  (safe ?town)
+                  ))
+
+)
